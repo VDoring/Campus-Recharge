@@ -1,0 +1,67 @@
+Preamble: These are my global default rules and preferences for interacting with you, the AI assistant. Apply these consistently unless overridden by project-specific rules or explicit instructions in a prompt. My goal is to build high-quality, maintainable software efficiently.
+
+1. 💬 Language & Interaction:
+
+Primary Language: Always respond and explain in 한국어 (Korean). Code comments and documentation within the code itself should generally be in English for broader accessibility, unless specifically requested otherwise for a particular project.
+
+Clarity & Conciseness: Provide clear, direct answers and code. Explain the 'why' behind significant decisions or complex code snippets.
+
+Proactive Suggestions: Feel free to suggest improvements or alternative approaches based on best practices, but clearly state the trade-offs.
+
+2. 💻 General Coding Principles (Apply Everywhere):
+
+Readability: Prioritize code clarity. Use meaningful names (variables, functions, classes), adhere to standard language conventions (e.g., PEP 8 for Python, generally accepted TypeScript styles), and use consistent formatting (leverage Prettier/Black or established project formatters).
+
+Simplicity (KISS): Write the simplest code that solves the problem effectively. Avoid unnecessary complexity or premature optimization.
+
+DRY (Don't Repeat Yourself): Abstract repeated logic into reusable functions, classes, or modules.
+
+Robustness: Implement proper error handling (try/catch/except, explicit checks). Log errors effectively with context. Handle edge cases where obvious.
+
+Security Basics: Be mindful of security. Sanitize external inputs, avoid hardcoding secrets, and be cautious with operations like file system access or external process execution.
+
+Modularity: Structure code into logical units (functions, classes, modules/components) with clear responsibilities.
+
+Comments: Add comments to explain why something is done in a non-obvious way, not what the code is doing if it's self-explanatory. Keep comments up-to-date.
+
+Testing Stubs (If Generating Code): Where appropriate, include basic placeholders or stubs for unit tests alongside generated functions or classes, reminding us to implement them fully.
+
+3. 🐙 Version Control (Git & GitHub):
+
+Commit Messages: Always write Git commit messages in English.
+
+Conventional Commits: Adhere strictly to the Conventional Commits standard (feat:, fix:, chore:, docs:, style:, refactor:, perf:, test:, etc.).
+
+Issue Linking: When requested or context implies an issue number, link it appropriately in the commit message (e.g., using the #<number> convention in the subject or footer as previously defined in specific Git rules). Never invent issue numbers.
+
+Atomic Commits: Aim for small, logical commits that represent a single unit of change.
+
+Safety: Never suggest or use git push --force unless explicitly instructed with clear understanding of the risks. Advise on handling push conflicts (fetch/pull/rebase).
+
+4. <0xF0><0x9F><0x9A><0xA7> Node.js Ecosystem (Apply in Node.js/TypeScript Projects):
+
+Package Manager: Always use pnpm for installing, removing, and managing dependencies (pnpm add, pnpm install, pnpm remove). Generate commands accordingly.
+
+TypeScript Focus: In TypeScript projects, leverage strong typing. Avoid any where possible; use unknown or specific types. Use interfaces or types consistently. Enable strict mode in tsconfig.json.
+
+5. ▲ Next.js Specifics (Apply ONLY in Next.js Projects):
+
+App Router Default: Strongly prefer and default to using Next.js App Router features.
+
+Server Components: Leverage React Server Components (RSCs) by default. Generate components as RSCs unless client-side interactivity (hooks, event handlers) or browser APIs are explicitly required.
+
+Client Components:
+
+Use the 'use client' directive at the top of files requiring client-side features.
+
+Convention: When generating new client component files, use the .client.tsx naming convention (e.g., MyInteractiveComponent.client.tsx). Ensure the 'use client' directive is also present.
+
+Data Fetching: Use fetch within Server Components for data fetching, leveraging Next.js caching options. Use Route Handlers (route.ts) for API endpoints within the App Router. For client-side data fetching, suggest SWR or React Query if appropriate.
+
+Built-in Components: Utilize Next.js built-in components like <Link>, <Image>, and functions like dynamic() where appropriate for performance and features.
+
+6. 🎨 UI Libraries (Apply When Using Specific Libraries):
+
+shadcn/ui: When adding components from shadcn/ui to a project, prefer using the shadcn-ui CLI (pnpm dlx shadcn-ui@latest add [component-name]). Generate or suggest this command rather than manually copying code, unless specifically asked to generate the code structure itself.
+
+Review & Override: Remember these are defaults. Project-specific requirements or direct instructions in a prompt take precedence. If unsure how a global rule applies in a specific context, please ask.

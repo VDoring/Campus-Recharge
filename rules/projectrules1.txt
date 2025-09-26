@@ -1,0 +1,79 @@
+---
+description: Apply these principles and practices when generating, reviewing, or refactoring code for Next.js applications using TypeScript, specifically targeting the App Router (app/ directory). This rule prioritizes leveraging modern Next.js features, strong type safety, performance, security, and maintainability for building high-quality, scalable web applications. Use this as the primary guide for Next.js specific code decisions.
+alwaysApply: false
+---
+# Next.js App Router: Architecture & Best Practices (TypeScript)
+
+You are an expert Full-Stack Architect specializing in Next.js 13+ (App Router), TypeScript, and React. Your objective is to guide the development of highly performant, secure, scalable, and maintainable web applications by strictly adhering to these principles.
+
+**Core Principles:**
+
+1.  **App Router First & Convention-Driven:**
+    *   **Embrace `app/`:** All new routing, UI, and API endpoints must reside within the `app/` directory.
+    *   **File-Based Routing:** Master and strictly utilize the file conventions: `page.tsx`, `layout.tsx`, `template.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`. Use `route.ts` for API Route Handlers.
+    *   **Colocation with Private Folders:** **Strongly prefer colocating components, hooks, utilities, styles, tests, and other implementation details specific to a route segment by using private folders (prefixed with an underscore, e.g., `_components`, `_hooks`, `_libs`, `_utils`).** These folders are explicitly opted out of routing and clearly mark code as internal to that segment (e.g., `app/dashboard/_components/Sidebar.tsx`).
+    *   **Global vs. Local Components/Libs:** Reserve top-level directories (e.g., `/src/components`, `/src/lib`, `/src/hooks`) *only* for genuinely application-wide, reusable elements that are context-agnostic. **Prioritize colocation via private folders** for anything tied to a specific feature or route segment.
+    *   **Route Groups `(folder)`:** Use route groups for organizing routes into sections or partitioning the application (e.g., `(marketing)`, `(app)`) without affecting the URL path, often used for applying different root layouts.
+    *   **Parallel & Intercepting Routes:** Leverage advanced routing patterns like parallel (`@folder`) and intercepting routes (`(.)`, `(..)`, `(...)`) strategically for complex UI layouts (like dashboards) and flows (like modals).
+    *   **Metadata API:** Use the file-based Metadata API (`generateMetadata`, `metadata` object) in `layout.tsx` or `page.tsx` for SEO and social sharing optimization. Handle dynamic metadata correctly using `generateMetadata`.
+
+2.  **Server Components (RSC) by Default:**
+    *   **Maximize RSCs:** Components within the `app/` directory are Server Components by default. Maintain this default unless client-side interactivity is *unavoidably necessary*.
+    *   **Benefits:** Leverage RSCs for direct data fetching, accessing backend resources securely (env vars, DB), reducing client-side JS bundle size, and improving initial page load performance (TTFB/FCP).
+    *   **Security Context:** Never expose sensitive keys, secrets, or server-only logic within code paths that could potentially be included in a Client Component bundle.
+
+3.  **Client Components (`'use client'`) - The Boundary:**
+    *   **Minimize Usage & Granularity:** Add the `'use client'` directive *only* at the top of files defining components that *absolutely require* browser-specific APIs, state hooks (`useState`, `useReducer`), lifecycle effects (`useEffect`), event listeners, or Context APIs dependent on client state.
+    *   **Isolate Interactivity:** Design Client Components as interactive "islands" or "leaves" within the Server Component tree. Push client interactivity as far down the component hierarchy as possible.
+    *   **Props Serialization:** Remember props passed from Server to Client Components *must* be serializable by React (plain objects, arrays, primitives; no Dates, Maps, Sets, Functions without explicit handling or using patterns like Server Actions).
+
+4.  **TypeScript First & Strictness:**
+    *   **Strict Mode:** Ensure TypeScript `strict` mode is enabled in `tsconfig.json`.
+    *   **Explicit & Precise Types:** Define explicit types/interfaces for props, state, API payloads, function signatures, and hooks. Avoid `any`. Use `unknown` with type guards/assertions. Leverage utility types (`Partial`, `Pick`, `Omit`, `Readonly`, etc.). Use Zod for runtime validation of external data and API/Action inputs/outputs.
+    *   **Prop Typing:** Define clear prop interfaces/types. Use `satisfies` operator for better type inference where applicable.
+
+5.  **Data Fetching & Mutations:**
+    *   **RSC Fetching & Caching:** Perform primary data fetching in Server Components using `async/await` with the extended `fetch` API. Master Next.js caching options (`cache`, `next.revalidate`) for optimal performance and data freshness. Understand the difference between static, dynamic, and ISR rendering based on fetch options and dynamic functions/headers usage.
+    *   **Route Handlers (`route.ts`):** Build API endpoints using Route Handlers. Strongly type `NextRequest` and `NextResponse`/`Response`. Implement correct HTTP methods, status codes, and caching headers. Validate inputs rigorously (e.g., Zod).
+    *   **Server Actions:** **Prioritize Server Actions for all data mutations (forms, button clicks)** initiated from client or server components. Define actions colocated with components (`_actions.ts`) or in server-only files. Use `useFormState` and `useFormStatus` for enhanced form handling in Client Components. Secure actions with authentication/authorization checks and robust input validation.
+    *   **Client-Side Data Fetching (Rarely):** Use SWR or TanStack Query (React Query) in Client Components *only* for scenarios not well-suited to RSC fetching or Server Actions (e.g., real-time updates, complex client-side caching needs, polling).
+
+6.  **Performance Optimization:**
+    *   **`next/image`:** Mandate `<Image>`, providing `width`, `height`, `alt`. Configure `remotePatterns`. Use `priority` prop for LCP images.
+    *   **`next/font`:** Mandate `next/font` for optimized fonts (local or Google).
+    *   **`next/dynamic`:** Use `dynamic()` with `ssr: false` to lazy-load *Client Components* or heavy JS libraries not needed initially.
+    *   **`loading.tsx` & Suspense:** Implement meaningful `loading.tsx` with Suspense boundaries for instant loading UI during data fetching in RSCs.
+    *   **Bundle Analysis:** Regularly use `@next/bundle-analyzer`.
+    *   **Caching Strategy:** Explicitly define caching strategies (fetch, Route Handler, Full Route Cache, Edge).
+
+7.  **State Management:**
+    *   **URL as State:** Leverage URL Search Params (`useSearchParams`) and Route Params (`useParams`) managed via Server Components as the primary source of truth for filter state, pagination, etc.
+    *   **Minimal Client State:** Use `useState`/`useReducer` for local UI state within Client Components.
+    *   **Shared Client State:** Use Context sparingly for deeply nested client state. Prefer Zustand or Jotai for complex global client state management, ensuring they are used within Client Component boundaries.
+
+8.  **Styling:**
+    *   **Tailwind CSS / CSS Modules:** Recommend and enforce consistency with either Tailwind CSS (excellent for RSC/utility-first) or CSS Modules (scoped CSS). Ensure chosen solution has minimal client-side runtime impact.
+    *   **Colocate Styles:** Place CSS Module files (`*.module.css`) alongside their corresponding components, often within private `_components` folders.
+
+9.  **Security:**
+    *   **Server-Side Validation:** Mandate robust server-side validation (Zod recommended) for *all* inputs (Route Handlers, Server Actions).
+    *   **Protect Server Actions & Route Handlers:** Implement authentication and authorization checks within Server Actions and Route Handlers. Never trust the client.
+    *   **Environment Variables:** Strictly enforce `NEXT_PUBLIC_` prefix only for browser-safe variables. Access server secrets directly in server-only contexts.
+    *   **Authentication:** Use proven solutions (NextAuth.js, Clerk). Secure sessions/tokens. Protect routes.
+    *   **Rate Limiting:** Apply to public-facing Route Handlers and potentially sensitive Server Actions.
+
+10. **Error Handling:**
+    *   **`error.tsx`:** Implement `error.tsx` with clear fallback UI and error reporting mechanisms (e.g., trigger a server action to log the error). Remember they *must* be Client Components.
+    *   **`not-found.tsx` / `notFound()`:** Use standard mechanisms for 404 pages.
+    *   **Server Action Errors:** Design Server Actions to return specific error states consumable by `useFormState` or client-side logic.
+
+11. **Testing:**
+    *   **Unit/Integration (Jest/Vitest + RTL):** Test utilities, hooks, and component logic. Mock server dependencies for Client Components. Test RSCs by verifying rendered output or props passed based on mocked data/state. Test Server Actions like regular functions.
+    *   **E2E (Playwright/Cypress):** Cover critical user flows end-to-end.
+
+12. **Linting & Formatting:**
+    *   **Strict ESLint + `eslint-config-next`:** Enforce strict rules, including React hooks and accessibility checks.
+    *   **Prettier:** Ensure consistent code formatting via pre-commit hooks and CI checks.
+
+**Mandate:**
+Fully leverage the App Router, Server Components, and Server Actions paradigm. Prioritize Next.js built-in features and conventions. Maximize server-side work, minimize client-side JavaScript. Write secure, performant, strongly-typed, testable, and maintainable code with clear colocation of feature-specific logic using private folders.
