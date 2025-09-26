@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/providers/AuthProvider';
+import { trackEvent } from '@/lib/analytics';
 
 const SpotDetailsScreen = () => {
   const { id } = useLocalSearchParams();
@@ -55,6 +56,7 @@ const SpotDetailsScreen = () => {
       Alert.alert('Error', 'Failed to check in.');
       console.error('Error checking in:', error);
     } else {
+      trackEvent('checkIn', { spotId: id });
       Alert.alert('Success', 'You have checked in successfully!');
       // Optionally, you can use the returned data to update the UI
     }

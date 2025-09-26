@@ -2,6 +2,7 @@ import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Link } from 'expo-router';
+import { trackEvent } from '@/lib/analytics';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ const SignUp = () => {
     if (error) {
       setError(error.message);
     } else {
+      trackEvent('signUp');
       // Navigate to the app or show a confirmation message
     }
   };

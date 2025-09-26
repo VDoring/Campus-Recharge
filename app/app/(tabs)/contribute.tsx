@@ -3,6 +3,7 @@ import { useState } from 'react';
 import * as Location from 'expo-location';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/providers/AuthProvider';
+import { trackEvent } from '@/lib/analytics';
 
 const ContributeScreen = () => {
   const { session } = useAuth();
@@ -43,6 +44,7 @@ const ContributeScreen = () => {
       Alert.alert('Error', 'Failed to submit contribution.');
       console.error('Error submitting contribution:', error);
     } else {
+      trackEvent('contribute');
       Alert.alert('Success', 'Thank you for your contribution!');
       setName('');
       setDescription('');
